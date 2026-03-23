@@ -2,6 +2,7 @@ package com.pagos.controller;
 
 import com.pagos.model.PaymentRequest;
 import com.pagos.model.PaymentResponse;
+import com.pagos.repository.PaymentRepository;
 import com.pagos.service.PaymentService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -15,16 +16,19 @@ import java.util.Map;
 public class PaymentController {
 
     private final PaymentService service;
+    private final PaymentRepository repository; // ← agregar
 
-    public PaymentController(PaymentService service) {
+    public PaymentController(PaymentService service,
+            PaymentRepository repository) { // ← agregar
         this.service = service;
+        this.repository = repository; // ← agregar
     }
 
-    // POST /api/payments/pay — procesa el pago
+    // POST /api/payments/pay
     @PostMapping("/pay")
-    public ResponseEntity<PaymentResponse> pay(@Valid @RequestBody PaymentRequest request) {
+    public ResponseEntity<PaymentResponse> pay(
+            @Valid @RequestBody PaymentRequest request) {
         PaymentResponse response = service.process(request);
-
         if ("SUCCESS".equals(response.getStatus())) {
             return ResponseEntity.ok(response);
         } else {
@@ -32,7 +36,39 @@ public class PaymentController {
         }
     }
 
-    // GET /api/payments/methods — lista de métodos disponibles
+    // ★ PROTOTYPE — clona y cambia el monto
+    @PostMapping("/clone")
+    public ResponseEntity<PaymentResponse> cloneAndPay(
+            @Valid @RequestBody PaymentRequest original,
+            @RequestParam Double newAmount) {
+        PaymentResponse response = service.cloneAndProcess(original, newAmount);
+        if ("SUCCESS".equals(response.getStatus())) {
+            return ResponseEntity.ok(response);
+        } else {
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    // ★ PROTOTYPE — clona y cambia el método
+    @PostMapping("/clone-method")
+    public ResponseEntity<PaymentResponse> cloneWithMethod(
+            @Valid @RequestBody PaymentRequest original,
+            @RequestParam String newMethod) {
+        PaymentResponse response = service.cloneWithNewMethod(original, newMethod);
+        if ("SUCCESS".equals(response.getStatus())) {
+            return ResponseEntity.ok(response);
+        } else {
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    // GET /api/payments/list — lista todos los pagos
+    @GetMapping("/list")
+    public ResponseEntity<List<PaymentResponse>> getAll() {
+        return ResponseEntity.ok(repository.findAll());
+    }
+
+    // GET /api/payments/methods
     @GetMapping("/methods")
     public ResponseEntity<List<Map<String, String>>> getMethods() {
         return ResponseEntity.ok(List.of(

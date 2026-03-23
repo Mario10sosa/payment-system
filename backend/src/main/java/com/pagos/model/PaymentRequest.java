@@ -5,28 +5,69 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.Data;
 
+// ★ PATRÓN PROTOTYPE
 @Data
-public class PaymentRequest {
+public class PaymentRequest implements PaymentPrototype {
+
     @NotNull(message = "El monto es obligatorio")
     @Positive(message = "El monto debe ser mayor a 0")
     private Double amount;
 
     @NotBlank(message = "El método de pago es obligatorio")
-    private String paymentMethod; // CARD, PAYPAL, NEQUI, DAVIPLATA, CRYPTO
+    private String paymentMethod;
 
-    // ── Tarjeta ──────────────────
+    // Tarjeta
     private String cardNumber;
     private String cvv;
     private String expiryDate;
     private String cardHolderName;
 
-    // ── PayPal ───────────────────
+    // PayPal
     private String email;
 
-    // ── Nequi / Daviplata ────────
+    // Nequi / Daviplata
     private String phone;
 
-    // ── Crypto ───────────────────
+    // Crypto
     private String walletAddress;
-    private String cryptoCurrency; // BTC, ETH, USDT
+    private String cryptoCurrency;
+
+    // ★ PATRÓN PROTOTYPE — copia exacta del objeto
+    @Override
+    public PaymentRequest clone() {
+        PaymentRequest copia = new PaymentRequest();
+        copia.setAmount(this.amount);
+        copia.setPaymentMethod(this.paymentMethod);
+        copia.setCardNumber(this.cardNumber);
+        copia.setCvv(this.cvv);
+        copia.setExpiryDate(this.expiryDate);
+        copia.setCardHolderName(this.cardHolderName);
+        copia.setEmail(this.email);
+        copia.setPhone(this.phone);
+        copia.setWalletAddress(this.walletAddress);
+        copia.setCryptoCurrency(this.cryptoCurrency);
+        return copia;
+    }
+
+    // PATRÓN PROTOTYPE — clona y cambia el monto
+    public PaymentRequest cloneWithNewAmount(Double newAmount) {
+        PaymentRequest copia = this.clone();
+        copia.setAmount(newAmount);
+        return copia;
+    }
+
+    // PATRÓN PROTOTYPE — clona y cambia el método
+    public PaymentRequest cloneWithNewMethod(String newMethod) {
+        PaymentRequest copia = this.clone();
+        copia.setPaymentMethod(newMethod);
+        return copia;
+    }
+
+    // PATRÓN PROTOTYPE — clona y cambia monto y método
+    public PaymentRequest cloneWith(Double newAmount, String newMethod) {
+        PaymentRequest copia = this.clone();
+        copia.setAmount(newAmount);
+        copia.setPaymentMethod(newMethod);
+        return copia;
+    }
 }

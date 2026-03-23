@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import java.time.LocalDateTime;
 
+// ★ PATRÓN BUILDER
 @Getter
 @Entity
 @Table(name = "payments")
@@ -21,11 +22,10 @@ public class PaymentResponse {
     private LocalDateTime timestamp;
     private String errorMessage;
 
-    // Constructor privado — solo el Builder puede crear el objeto
     protected PaymentResponse() {
     }
 
-    // ★ PATRÓN BUILDER
+    // PATRÓN BUILDER
     public static class Builder {
 
         private String transactionId;
@@ -71,8 +71,13 @@ public class PaymentResponse {
             return this;
         }
 
-        // build() ensambla el objeto final
+        // PATRÓN BUILDER — ensambla el objeto final
         public PaymentResponse build() {
+            if (status == null || status.isBlank())
+                throw new IllegalStateException("El status es obligatorio");
+            if (paymentMethod == null || paymentMethod.isBlank())
+                throw new IllegalStateException("El método de pago es obligatorio");
+
             PaymentResponse response = new PaymentResponse();
             response.transactionId = this.transactionId;
             response.amount = this.amount;
@@ -85,8 +90,10 @@ public class PaymentResponse {
         }
     }
 
-    // Métodos estáticos de fábrica que usan el Builder internamente
-    public static PaymentResponse success(String transactionId, Double amount, String method) {
+    // PATRÓN BUILDER — pago exitoso
+    public static PaymentResponse success(String transactionId,
+            Double amount,
+            String method) {
         return new Builder()
                 .transactionId(transactionId)
                 .amount(amount)
@@ -95,6 +102,7 @@ public class PaymentResponse {
                 .build();
     }
 
+    // PATRÓN BUILDER — pago fallido
     public static PaymentResponse failure(String method, String error) {
         return new Builder()
                 .paymentMethod(method)
