@@ -18,12 +18,12 @@ import java.util.Map;
 public class PaymentController {
 
     private final PaymentService service;
-    private final PaymentRepository repository; // ← agregar
+    private final PaymentRepository repository;
 
     public PaymentController(PaymentService service,
-            PaymentRepository repository) { // ← agregar
+            PaymentRepository repository) {
         this.service = service;
-        this.repository = repository; // ← agregar
+        this.repository = repository;
     }
 
     // POST /api/payments/pay
@@ -64,10 +64,13 @@ public class PaymentController {
         }
     }
 
-    // GET /api/payments/list — lista todos los pagos
+    // ★ GET /api/payments/list — pagos del usuario logueado
     @GetMapping("/list")
-    public ResponseEntity<List<PaymentResponse>> getAll() {
-        return ResponseEntity.ok(repository.findAll());
+    public ResponseEntity<?> getAll(Authentication authentication) {
+        User user = (User) authentication.getPrincipal();
+        List<PaymentResponse> pagos = repository
+                .findByUserIdOrderByTimestampDesc(user.getId());
+        return ResponseEntity.ok(pagos);
     }
 
     // GET /api/payments/my-payments — historial del usuario logueado
