@@ -197,41 +197,6 @@ export default function PaymentForm() {
             </div>
           )}
 
-          {/* ★ SINGLETON — Estado conexión */}
-          <div className="border rounded-3 p-3 mb-3 text-start">
-            <p className="fw-semibold small mb-2 text-success">
-              <i className="bi bi-database me-2"></i>
-              Singleton — Conexión MySQL
-            </p>
-            <button
-              className="btn btn-outline-success w-100 mb-2"
-              onClick={handleDbStatus}
-            >
-              <i className="bi bi-plug me-2"></i>
-              Verificar conexión Singleton
-            </button>
-            {dbStatus && (
-              <div className={`alert py-2 mb-0 small
-                ${dbStatus.connected ? 'alert-success' : 'alert-danger'}`}>
-                <div className="d-flex justify-content-between mb-1">
-                  <span>Estado</span>
-                  <span className="fw-semibold">
-                    {dbStatus.connected ? '✅ Activa' : '❌ Inactiva'}
-                  </span>
-                </div>
-                <div className="d-flex justify-content-between mb-1">
-                  <span>Instancia</span>
-                  <span className="fw-semibold font-monospace small">
-                    {dbStatus.instance}
-                  </span>
-                </div>
-                <div className="d-flex justify-content-between">
-                  <span>Patrón</span>
-                  <span className="fw-semibold">{dbStatus.pattern}</span>
-                </div>
-              </div>
-            )}
-          </div>
 
           <button className="btn btn-primary w-100" onClick={handleReset}>
             <i className="bi bi-arrow-left me-2"></i>Nuevo pago
@@ -253,9 +218,6 @@ export default function PaymentForm() {
         <h5 className="text-white mb-0 fw-bold">
           <i className="bi bi-shield-lock me-2"></i>Pago seguro
         </h5>
-        <small className="text-white opacity-75">
-          Abstract · Factory · Builder · Prototype · Singleton
-        </small>
       </div>
 
       <div className="card-body p-4">

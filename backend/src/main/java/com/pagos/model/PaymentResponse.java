@@ -14,6 +14,7 @@ public class PaymentResponse {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private Long userId; // ← relaciona pago con usuario
     private String transactionId;
     private Double amount;
     private String paymentMethod;
@@ -28,6 +29,7 @@ public class PaymentResponse {
     // PATRÓN BUILDER
     public static class Builder {
 
+        private Long userId;
         private String transactionId;
         private Double amount;
         private String paymentMethod;
@@ -35,6 +37,11 @@ public class PaymentResponse {
         private String receiptId;
         private LocalDateTime timestamp;
         private String errorMessage;
+
+        public Builder userId(Long userId) {
+            this.userId = userId;
+            return this;
+        }
 
         public Builder transactionId(String transactionId) {
             this.transactionId = transactionId;
@@ -79,6 +86,7 @@ public class PaymentResponse {
                 throw new IllegalStateException("El método de pago es obligatorio");
 
             PaymentResponse response = new PaymentResponse();
+            response.userId = this.userId;
             response.transactionId = this.transactionId;
             response.amount = this.amount;
             response.paymentMethod = this.paymentMethod;
@@ -102,6 +110,20 @@ public class PaymentResponse {
                 .build();
     }
 
+    // PATRÓN BUILDER — pago exitoso con usuario
+    public static PaymentResponse success(String transactionId,
+            Double amount,
+            String method,
+            Long userId) {
+        return new Builder()
+                .transactionId(transactionId)
+                .amount(amount)
+                .paymentMethod(method)
+                .status("SUCCESS")
+                .userId(userId)
+                .build();
+    }
+
     // PATRÓN BUILDER — pago fallido
     public static PaymentResponse failure(String method, String error) {
         return new Builder()
@@ -109,6 +131,19 @@ public class PaymentResponse {
                 .status("FAILED")
                 .errorMessage(error)
                 .timestamp(LocalDateTime.now())
+                .build();
+    }
+
+    // PATRÓN BUILDER — pago fallido con usuario
+    public static PaymentResponse failure(String method,
+            String error,
+            Long userId) {
+        return new Builder()
+                .paymentMethod(method)
+                .status("FAILED")
+                .errorMessage(error)
+                .timestamp(LocalDateTime.now())
+                .userId(userId)
                 .build();
     }
 }

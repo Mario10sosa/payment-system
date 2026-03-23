@@ -1,6 +1,5 @@
 import axios from 'axios'
 
-// ── Configuración base ────────────────────────
 const API = axios.create({
     baseURL: 'http://localhost:8080/api/payments'
 })
@@ -9,53 +8,39 @@ const DB_API = axios.create({
     baseURL: 'http://localhost:8080/api/db'
 })
 
+// el token en cada petición automáticamente
+API.interceptors.request.use(config => {
+    const token = localStorage.getItem('token')
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`
+    }
+    return config
+})
 
-// Endpoints principales
+// ── Endpoints principales ─────────────────────
 
- //Procesa un pago nuevo.
-
-export const processPayment = (data) => {
-    console.log('processPayment:', data.paymentMethod, '$' + data.amount)
-    return API.post('/pay', data)
-}
-
-
- //Obtiene los métodos de pago disponibles.
+export const processPayment = (data) =>
+    API.post('/pay', data)
 
 export const getPaymentMethods = () =>
     API.get('/methods')
 
-// GET /api/payments/list — lista todos los pagos
+// ★ PATRÓN PROTOTYPE — clona y cambia el monto
+export const cloneAndPay = (originalData, newAmount) =>
+    API.post(`/clone?newAmount=${newAmount}`, originalData)
+
+// ★ PATRÓN PROTOTYPE — clona y cambia el método
+export const cloneWithNewMethod = (originalData, newMethod) =>
+    API.post(`/clone-method?newMethod=${newMethod}`, originalData)
+
+// ★ Lista todos los pagos
 export const getPayments = () =>
     API.get('/list')
 
-// PATRÓN PROTOTYPE
+// ★ Lista pagos del usuario logueado
+export const getMyPayments = () =>
+    API.get('/my-payments')
 
-
- //Clona un pago existente y cambia solo el monto.
-
-export const cloneAndPay = (originalData, newAmount) => {
-    console.log('clonando pago...')
-    console.log('    Original →', originalData.paymentMethod, '$' + originalData.amount)
-    console.log('    Nuevo monto → $' + newAmount)
-    return API.post(`/clone?newAmount=${newAmount}`, originalData)
-}
-
-
- //Clona un pago y cambia el método de pago.
-
-export const cloneWithNewMethod = (originalData, newMethod) => {
-    console.log('clonando con nuevo método...')
-    console.log('    Original →', originalData.paymentMethod)
-    console.log('    Nuevo método →', newMethod)
-    return API.post(`/clone-method?newMethod=${newMethod}`, originalData)
-}
-
-// PATRÓN SINGLETON
-
- //Verifica el estado de la conexión Singleton.
-
-export const getDbStatus = () => {
-    console.log('verificando conexión...')
-    return DB_API.get('/status')
-}
+// ★ PATRÓN SINGLETON — verificar conexión
+export const getDbStatus = () =>
+    DB_API.get('/status')

@@ -4,8 +4,10 @@ import com.pagos.model.PaymentRequest;
 import com.pagos.model.PaymentResponse;
 import com.pagos.repository.PaymentRepository;
 import com.pagos.service.PaymentService;
+import com.pagos.user.User;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
@@ -66,6 +68,15 @@ public class PaymentController {
     @GetMapping("/list")
     public ResponseEntity<List<PaymentResponse>> getAll() {
         return ResponseEntity.ok(repository.findAll());
+    }
+
+    // GET /api/payments/my-payments — historial del usuario logueado
+    @GetMapping("/my-payments")
+    public ResponseEntity<?> getMyPayments(Authentication authentication) {
+        User user = (User) authentication.getPrincipal();
+        List<PaymentResponse> pagos = repository
+                .findByUserIdOrderByTimestampDesc(user.getId());
+        return ResponseEntity.ok(pagos);
     }
 
     // GET /api/payments/methods
